@@ -33,6 +33,7 @@ function transformNumber() {
   const valueToNumber = Number(refs.userInput.value);
   if (valueToNumber === 0) {
     print('');
+    clearInput();
     return;
   }
   //// here we go
@@ -42,4 +43,31 @@ function transformNumber() {
   clearInput();
 }
 
-// // // // // // // // // // // // // // // //
+// // // // // // // // // // // // // // // // en
+
+// one hundred twenty fourth
+
+
+// ones
+// tens
+// hundreds
+
+// // // // // // // // // // // // // // // // uk
+// порядковий числівник
+
+// https://github.com/idapgroup/Guidelines/blob/master/Internship/iOS/2021-KR/Task.md
+// https://en.wiktionary.org/wiki/%D0%BF%27%D1%8F%D1%82%D0%B8%D0%B9#Ukrainian
+// https://en.wiktionary.org/wiki/%D0%BF%27%D1%8F%D1%82%D0%B4%D0%B5%D1%81%D1%8F%D1%82%D0%B8%D0%B9#Ukrainian
+// https://en.wiktionary.org/wiki/%D0%BF%27%D1%8F%D1%82%D0%B8%D1%81%D0%BE%D1%82%D0%B8%D0%B9#Ukrainian
+// https://en.wiktionary.org/wiki/%D1%82%D1%80%D1%8C%D0%BE%D1%85%D1%81%D0%BE%D1%82%D0%B8%D0%B9#Ukrainian
+// https://en.wiktionary.org/wiki/%D0%BF%27%D1%8F%D1%82%D0%B8%D1%81%D0%BE%D1%82%D0%B8%D0%B9#Ukrainian
+
+// https://uk.wiktionary.org/wiki/%D1%88%D1%96%D1%81%D1%82%D0%B4%D0%B5%D1%81%D1%8F%D1%82%D0%B8%D0%B9
+// https://en.wiktionary.org/wiki/%D1%88%D0%B5%D1%81%D1%82%D0%B8%D1%81%D0%BE%D1%82%D0%B8%D0%B9#Ukrainian
+// https://en.wiktionary.org/wiki/%D1%82%D0%B8%D1%81%D1%8F%D1%87%D0%BD%D0%B8%D0%B9#Ukrainian
+
+// https://webpen.com.ua/pages/Morphology_and_spelling/numerals_compound_words.html
+// https://webpen.com.ua/pages/Morphology_and_spelling/numerals_declination.html
+
+// // // // // // // // // // // // // // // // de
+// fünfte
