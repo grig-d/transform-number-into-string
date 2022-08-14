@@ -1,7 +1,7 @@
 const placeholderNames = {
-  en: 'your number',
-  uk: 'ваше число',
-  de: 'Ihre Nummer',
+  EN: 'your number',
+  UK: 'ваше число',
+  DE: 'Ihre Nummer',
 };
 
 export default placeholderNames;
