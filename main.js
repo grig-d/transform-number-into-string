@@ -27,7 +27,8 @@ function pressEnter(event) {
 
 // result output in form
 function print(input, result) {
-  refs.output.textContent = `${input}: ${result}`;
+  refs.outputNumber.textContent = `${input}:`;
+  refs.outputResult.textContent = result;
 }
 
 // clear form input
@@ -68,8 +69,7 @@ function manager() {
     cardinalNumber,
   ); //DEL
 
-  // const outputValue =
-  //   getCardinalWord(cardinalNumber) + getOrdinalWord(ordinalNumber);
+  // const outputValue = getCardinalWord(cardinalNumber) + getOrdinalWord(ordinalNumber);
   const outputValue = getCardinalWord(inputNumber, curLang); //DEL
   print(inputNumber, outputValue);
   clearInput();

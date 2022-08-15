@@ -87,4 +87,14 @@ select {
   text-align: center;
 }
 
+.unselectable {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  margin-right: 8px;
+  color: #888;
+  font-weight: 400;
+}
+
 
