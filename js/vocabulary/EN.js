@@ -20,7 +20,7 @@ const EN = {
   18: ['eighteenth', 'eighteen'],
   19: ['nineteenth', 'nineteen'],
   20: ['twentieth', 'twenty'],
-  30: ['thirtieth', 'thirty	'],
+  30: ['thirtieth', 'thirty'],
   40: ['fortieth', 'forty'],
   50: ['fiftieth', 'fifty'],
   60: ['sixtieth', 'sixty'],

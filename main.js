@@ -8,12 +8,17 @@ refs.userInput.addEventListener('keypress', inputCharFilter);
 refs.enterBtn.addEventListener('click', manager);
 window.addEventListener('keypress', pressEnter);
 
+// ordinal array index value in vocabulary object
+// cardinal array index value in vocabulary object
+const ordInd = 0;
+const carInd = 1;
+
 // placeholder name depending on the language
 function changePlaceholder() {
   refs.userInput.placeholder = placeholderNames[refs.language.value];
 }
 
-// ability to enter only digits
+// only digits on input
 function inputCharFilter(event) {
   if (event.keyCode < 48 || event.keyCode > 57) event.returnValue = false;
 }
@@ -70,19 +75,19 @@ function manager() {
   ); //DEL
 
   // const outputValue = getCardinalWord(cardinalNumber) + getOrdinalWord(ordinalNumber);
-  const outputValue = getCardinalWord(inputNumber, curLang); //DEL
+  const outputValue = getCardinalWord(ordinalNumber, curLang, ordInd); //DEL
   print(inputNumber, outputValue);
   clearInput();
 }
 
-const ordInd = 0; // ordinal value index in array
-const carInd = 1; // cardinal value index in array
+
 
 // (universal function to get cardinal or ordinal words depending on arguments)
 // transform digits to cardinal number words
-function getCardinalWord(number, lang) {
+function getCardinalWord(number, lang, index) {
   if (number === 0) {
-    return 'empty';
+    // return '';
+    return '-0-'; //DEL
   }
   // split number to parts by 3 or less digits in array to get levels
   const parts = [];
@@ -130,15 +135,18 @@ function getCardinalWord(number, lang) {
       );
       // from 1 to 19
       if (0 < twoDigits && twoDigits < 20) {
-        cardinalWords.push(library[lang][twoDigits][carInd]);
+        cardinalWords.push(library[lang][twoDigits][index]);
         console.log(cardinalWords); //DEL
       }
+      // TODO from 20 to 99 only tens
       // from 20 to 99
       else {
-        cardinalWords.push(library[lang][ones][carInd]);
+        cardinalWords.push(library[lang][ones][index]);
         cardinalWords.push(library[lang][tens][carInd]);
         console.log(cardinalWords); //DEL
       }
+// TODO from 20 to 99 other cases
+
       // hundreds
       if (hundreds) {
         cardinalWords.push(
@@ -146,6 +154,7 @@ function getCardinalWord(number, lang) {
         );
         console.log(cardinalWords); //DEL
       }
+      // if levels then cardinal numbers & ordinal level
     }
   }
   const result = cardinalWords.reverse().join(' ');
