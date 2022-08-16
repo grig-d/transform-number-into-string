@@ -5,7 +5,7 @@ import library from './js/library.js';
 // add event listeners
 refs.language.addEventListener('change', changePlaceholder);
 refs.userInput.addEventListener('keypress', inputCharFilter);
-refs.enterBtn.addEventListener('click', manager);
+refs.enterBtn.addEventListener('click', converter);
 window.addEventListener('keypress', pressEnter);
 
 // ordinal array index value in vocabulary object
@@ -26,7 +26,7 @@ function inputCharFilter(event) {
 // 'Enter' by pressing keyboard
 function pressEnter(event) {
   if (event.code === 'Enter') {
-    manager();
+    converter();
   }
 }
 
@@ -52,8 +52,8 @@ function findOrdinalNumber(number) {
   return ordinal;
 }
 
-// language manager, getting result & output result
-function manager() {
+// getting result & output result
+function converter() {
   // remove leading zeros
   const inputNumber = parseInt(refs.userInput.value, 10);
   // if input is zero or empty
@@ -75,12 +75,13 @@ function manager() {
   ); //DEL
 
   // const outputValue = getCardinalWord(cardinalNumber) + getOrdinalWord(ordinalNumber);
-  const outputValue = getCardinalWord(ordinalNumber, curLang, ordInd); //DEL
+  //DEL
+  const outputValue = getCardinalWord(ordinalNumber, curLang, carInd);
+  // const outputValue = getCardinalWord(ordinalNumber, curLang, ordInd);
+  //DEL
   print(inputNumber, outputValue);
   clearInput();
 }
-
-
 
 // (universal function to get cardinal or ordinal words depending on arguments)
 // transform digits to cardinal number words
@@ -114,7 +115,7 @@ function getCardinalWord(number, lang, index) {
     // skip if part === 0
     if (numberFromPart > 0) {
       console.log('numberFromPart', numberFromPart);
-      cardinalWords.push(library[lang].levels[i][carInd]);
+      cardinalWords.push(library[lang].levels[i][index]);
       console.log(cardinalWords); //DEL
       // twoDigits - is number that consists of ones and tens
       const twoDigits = numberFromPart % 100;
@@ -135,26 +136,34 @@ function getCardinalWord(number, lang, index) {
       );
       // from 1 to 19
       if (0 < twoDigits && twoDigits < 20) {
-        cardinalWords.push(library[lang][twoDigits][index]);
+        cardinalWords.push(library[lang][twoDigits][i ? carInd : index ]); // if level > 0 then digits only cardinal
+        // cardinalWords.push(library[lang][twoDigits][index]); // if level > 0 then digits only cardinal
         console.log(cardinalWords); //DEL
       }
-      // TODO from 20 to 99 only tens
-      // from 20 to 99
+      // from 20 to 99 only tens
+      else if (twoDigits > 19 && ones === 0) {
+        cardinalWords.push(library[lang][tens][index]);
+        console.log(cardinalWords); //DEL
+      }
+      // from 20 to 99 with ones > 0
       else {
         cardinalWords.push(library[lang][ones][index]);
         cardinalWords.push(library[lang][tens][carInd]);
         console.log(cardinalWords); //DEL
       }
-// TODO from 20 to 99 other cases
 
       // hundreds
       if (hundreds) {
         cardinalWords.push(
-          library[lang][hundreds / 100][carInd] + ' ' + 'hundred',
+          library[lang][hundreds / 100][carInd] +
+            ' ' +
+            library[lang][100][i ? carInd : index], // if level > 0 then digits only cardinal
         );
         console.log(cardinalWords); //DEL
       }
       // if levels then cardinal numbers & ordinal level
+
+
     }
   }
   const result = cardinalWords.reverse().join(' ');
@@ -167,3 +176,7 @@ function getOrdinalWord(number) {
   // body
   return number;
 }
+
+// TEST
+console.log('TEST', getCardinalWord(50, 'EN', carInd));
+// https://stackoverflow.com/questions/7505623/colors-in-javascript-console
