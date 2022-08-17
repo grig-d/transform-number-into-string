@@ -164,7 +164,7 @@ function getWords(number, lang, index) {
   return result;
 }
 
-// // // // TEST
+// TEST
 function test(stringToMatch, numberToCheck, curLang) {
   // return;
   const ordinalEndingNumber = findOrdinalEndingNumber(numberToCheck);
@@ -208,27 +208,79 @@ test('one hundred first', 101, 'EN');
 test('one hundred twentieth', 120, 'EN');
 test('four hundred ninety first', 491, 'EN');
 test('five hundredth', 500, 'EN');
-test('two thousandth', 2000, 'EN');
-test('two thousand eighth', 2008, 'EN');
-test('two thousand fourteenth', 2014, 'EN');
-test('three thousand seven hundredth', 3700, 'EN');
-test('ten thousandth', 10000, 'EN');
-test('seventy one thousandth', 71000, 'EN');
-test('one hundred forty five thousandth', 145000, 'EN');
-test('nine hundred three thousandth', 903000, 'EN');
-test('one million two hundred ninety thousandth', 1290000, 'EN');
-test('nine millionth', 9000000, 'EN');
-test('ten million four thousandth', 10004000, 'EN');
-test('one hundred millionth', 100000000, 'EN');
-test('one billion one hundred seventy thousandth', 1000170000, 'EN');
+test('two thousandth', 2_000, 'EN');
+test('two thousand eighth', 2_008, 'EN');
+test('two thousand fourteenth', 2_014, 'EN');
+test('three thousand seven hundredth', 3_700, 'EN');
+test('ten thousandth', 10_000, 'EN');
+test('seventy one thousandth', 71_000, 'EN');
+test('one hundred forty five thousandth', 145_000, 'EN');
+test('nine hundred three thousandth', 903_000, 'EN');
+test('one million two hundred ninety thousandth', 1_290_000, 'EN');
+test('nine millionth', 9_000_000, 'EN');
+test('ten million four thousandth', 10_004_000, 'EN');
+test('one hundred millionth', 100_000_000, 'EN');
+test('one billion one hundred seventy thousandth', 1_000_170_000, 'EN');
 test(
   'fifteen billion nine hundred twelve million fifty thousandth',
-  15912050000,
+  15_912_050_000,
   'EN',
 );
-test('twenty three billionth', 23000000000, 'EN');
-test('one hundred billionth', 100000000000, 'EN');
-test('two hundred eight billionth', 208000000000, 'EN');
-test('one trillionth', 1000000000000, 'EN');
-test('nine hundred ninety nine trillionth', 999000000000000, 'EN');
-test('nine1 hundred ninety nine trillion first', 999000000000001, 'EN');
+test('twenty three billionth', 23_000_000_000, 'EN');
+test('one hundred billionth', 100_000_000_000, 'EN');
+test('two hundred eight billionth', 208_000_000_000, 'EN');
+test('one trillionth', 1_000_000_000_000, 'EN');
+test('nine hundred ninety nine trillionth', 999_000_000_000_000, 'EN');
+test('nine hundred ninety nine trillion first', 999_000_000_000_001, 'EN');
+
+test('перший', 1, 'UK');
+test("п'ятий", 5, 'UK');
+test('десятий', 10, 'UK');
+test("п'ятнадцятий", 15, 'UK');
+test('двадцятий', 20, 'UK');
+test('двадцять перший', 21, 'UK');
+test("двадцять п'ятий", 25, 'UK');
+test('тридцятий', 30, 'UK');
+test('сорок восьмий', 48, 'UK');
+test("дев'яностий", 90, 'UK');
+test('сотий', 100, 'UK');
+test('сто перший', 101, 'UK');
+test('сто двадцятий', 120, 'UK');
+test('двісті двадцять четвертий', 224, 'UK');
+test('двісті сороковий', 240, 'UK');
+test('чотирьохсотий', 400, 'UK');
+test('чотириста третій', 403, 'UK');
+test("чотириста дев'яносто перший", 491, 'UK');
+test("п'ятисотий", 500, 'UK');
+test('тисячний', 1_000, 'UK');
+test('двохтисячний', 2_000, 'UK');
+test('дві тисячі перший', 2_001, 'UK');
+test('дві тисячі чотирнадцятий', 2_014, 'UK');
+test('три тисячі семисотий', 3_700, 'UK');
+test('вісім тисяч сотий', 8_100, 'UK');
+test('десятитисячний', 10_000, 'UK');
+test('сімдесятиоднотисячний', 71_000, 'UK');
+test('сімдесятидвохтисячний', 72_000, 'UK');
+test("сімдесятип'ятитисячний", 75_000, 'UK');
+test('стотисячний', 100_000, 'UK');
+test("стосорокап'ятитисячний", 145_000, 'UK');
+test("сто сорок п'ять тисяч перший", 145_001, 'UK');
+test("сто сорок п'ять тисяч сто перший", 145_101, 'UK');
+test("вісімсот вісім тисяч тридцять дев'ятий", 808_039, 'UK');
+test("дев'ятсоттрьохтисячний", 903_000, 'UK');
+test('мільйонний', 1_000_000, 'UK');
+test('один мільйон перший', 1_000_001, 'UK');
+test('трьохмільйонний', 3_000_000, 'UK');
+test('три мільйони перший', 3_000_001, 'UK');
+test('чотири мільйони сотий', 4_000_100, 'UK');
+test('чотири мільйони двохтисячний', 4_002_000, 'UK');
+test("дев'ять мільйонів тридцятидвохтисячний", 9_032_000, 'UK');
+test("п'ять мільйонів десятий", 5_000_010, 'UK');
+test('сім мільйонів десятий', 7_000_010, 'UK');
+test('вісім мільйонів двадцять тисяч одинадцятий', 8_020_011, 'UK');
+test('чотири мільйони сотий', 4_000_100, 'UK');
+test('стомільйонний', 100_000_000, 'UK');
+test('сто мільйонів чотирьохтисячний', 100_004_000, 'UK');
+test('мільярдний', 1_000_000_000, 'UK');
+test('один мільярд двадцятий', 1_000_000_020, 'UK');
+test('трильйонний', 1_000_000_000_000, 'UK');
