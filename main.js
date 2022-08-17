@@ -5,13 +5,13 @@ import library from './js/library.js';
 // add event listeners
 refs.language.addEventListener('change', changePlaceholder);
 refs.userInput.addEventListener('keypress', inputCharFilter);
-refs.enterBtn.addEventListener('click', converter);
+refs.enterBtn.addEventListener('click', transformManager);
 window.addEventListener('keypress', pressEnter);
 
 // ordinal array index value in vocabulary object
 // cardinal array index value in vocabulary object
-const ordInd = 0;
-const carInd = 1;
+const ORDINDX = 0;
+const CARINDX = 1;
 
 // placeholder name depending on the language
 function changePlaceholder() {
@@ -26,7 +26,7 @@ function inputCharFilter(event) {
 // 'Enter' by pressing keyboard
 function pressEnter(event) {
   if (event.code === 'Enter' || event.code === 'NumpadEnter') {
-    converter();
+    transformManager();
   }
 }
 
@@ -53,7 +53,7 @@ function findOrdinalEndingNumber(number) {
 }
 
 // getting result & output result
-function converter() {
+function transformManager() {
   // remove leading zeros
   const inputNumber = parseInt(refs.userInput.value, 10);
   // if input is zero or empty
@@ -64,8 +64,6 @@ function converter() {
   const ordinalEndingNumber = findOrdinalEndingNumber(inputNumber);
   const curLang = refs.language.value;
 
-  const cardinalNumber = inputNumber - ordinalEndingNumber; /////////////////////////////
-
   console.log(
     'inputNumber =',
     inputNumber,
@@ -73,42 +71,24 @@ function converter() {
     ordinalEndingNumber,
   ); //DEL
 
-  const outputValue = (
-    getWords(cardinalNumber, curLang, carInd) +
-    ' ' +
-    getWords(ordinalEndingNumber, curLang, ordInd)
-  ).trim();
-  //DEL
-  console.log('* * *');
-
-  const fullCardinalWords = getWords(inputNumber, curLang, carInd);
-  const ordinalEndingWords = getWords(ordinalEndingNumber, curLang, ordInd);
-
-  console.log('fullCardinalWords', fullCardinalWords);
-  console.log('ordinalEndingWords', ordinalEndingWords);
-
-  // const arr1 = [0, 1, 2, 3, 4];
-  // const arr2 = ['A', 'B'];
+  const fullCardinalWords = getWords(inputNumber, curLang, CARINDX);
+  const ordinalEndingWords = getWords(ordinalEndingNumber, curLang, ORDINDX);
   const limitIndex = fullCardinalWords.length - ordinalEndingWords.length;
-  console.log('limitIndex', limitIndex); //-----------------------------------------------------I AM HERE
-  // const arrA = [...arr1.filter((el, ind) => ind < maxIndex), ...arr2];
-  // console.log(arr1);
-  // console.log(arr2);
-  // console.log(arrA);
-
-  console.log('* * *');
-  //DEL
+  const outputValue = [
+    ...fullCardinalWords.filter((el, ind) => ind < limitIndex),
+    ...ordinalEndingWords,
+  ].join(' ');
+  console.log(outputValue); //DEL
   print(inputNumber, outputValue);
   clearInput();
 }
 
-// (universal function to get cardinal or ordinal words depending on arguments)
-// transform digits to cardinal number words
+// get cardinal or ordinal words depending on index argument
 function getWords(number, lang, index) {
   if (number === 0) {
     return '';
   }
-  // split number to parts by 3 or less digits in array to get levels
+  // split number into parts by 3 or less digits in array to get levels
   const parts = [];
   const arrToSplit = number.toString().split('');
   let endIndex = arrToSplit.length;
@@ -154,51 +134,52 @@ function getWords(number, lang, index) {
       );
       // from 1 to 19
       if (0 < twoDigits && twoDigits < 20) {
-        words.push(library[lang][twoDigits][i ? carInd : index]); // if level > 0 then digits only cardinal
+        words.push(library[lang][twoDigits][i ? CARINDX : index]); // if level > 0 then digits only cardinal
         console.log(words); //DEL
       }
       // from 20 to 99 only tens
       else if (twoDigits > 19 && ones === 0) {
-        words.push(library[lang][tens][i ? carInd : index]); // if level > 0 then digits only cardinal
+        words.push(library[lang][tens][i ? CARINDX : index]); // if level > 0 then digits only cardinal
         console.log(words); //DEL
       }
       // from 20 to 99 with ones > 0
       else {
-        words.push(library[lang][ones][i ? carInd : index]); // if level > 0 then digits only cardinal
-        words.push(library[lang][tens][carInd]);
+        words.push(library[lang][ones][i ? CARINDX : index]); // if level > 0 then digits only cardinal
+        words.push(library[lang][tens][CARINDX]);
         console.log(words); //DEL
       }
       // hundreds
       if (hundreds) {
         words.push(
-          library[lang][hundreds / 100][carInd] +
+          library[lang][hundreds / 100][CARINDX] +
             ' ' +
-            library[lang][100][i ? carInd : index], // if level > 0 then digits only cardinal
+            library[lang][100][i ? CARINDX : index], // if level > 0 then digits only cardinal
         );
         console.log(words); //DEL
       }
     }
   }
-  const result = words.filter(el => el).reverse(); //.join(' ');
+  const result = words.filter(el => el).reverse();
   console.log(result);
   return result;
 }
 
-// TEST
-function test(stringToMatch, numberToCheck, language) {
-  return;
+// // // // TEST
+function test(stringToMatch, numberToCheck, curLang) {
+  // return;
   const ordinalEndingNumber = findOrdinalEndingNumber(numberToCheck);
-  const cardinalNumber = numberToCheck - ordinalEndingNumber;
-  const outputValue = (
-    getWords(cardinalNumber, language, carInd) +
-    ' ' +
-    getWords(ordinalEndingNumber, language, ordInd)
-  ).trim();
+  const fullCardinalWords = getWords(numberToCheck, curLang, CARINDX);
+  const ordinalEndingWords = getWords(ordinalEndingNumber, curLang, ORDINDX);
+  const limitIndex = fullCardinalWords.length - ordinalEndingWords.length;
+  const outputValue = [
+    ...fullCardinalWords.filter((el, ind) => ind < limitIndex),
+    ...ordinalEndingWords,
+  ].join(' ');
 
   if (outputValue === stringToMatch) {
     console.log(
-      '%cOK',
-      'color: green; font-weight: 600',
+      '%c OK ',
+      'color: white; font-weight: 600; background-color: green',
       numberToCheck,
       stringToMatch,
       '-',
@@ -206,8 +187,8 @@ function test(stringToMatch, numberToCheck, language) {
     );
   } else {
     console.log(
-      '%cNO',
-      'color: red; font-weight: 600',
+      '%c NO ',
+      'color: white; font-weight: 600; background-color: red',
       numberToCheck,
       stringToMatch,
       '-',
@@ -250,4 +231,4 @@ test('one hundred billionth', 100000000000, 'EN');
 test('two hundred eight billionth', 208000000000, 'EN');
 test('one trillionth', 1000000000000, 'EN');
 test('nine hundred ninety nine trillionth', 999000000000000, 'EN');
-test('nine hundred ninety nine trillion first', 999000000000001, 'EN');
+test('nine1 hundred ninety nine trillion first', 999000000000001, 'EN');
