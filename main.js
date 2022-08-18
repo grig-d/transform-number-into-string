@@ -197,6 +197,7 @@ function test(stringToMatch, numberToCheck, curLang) {
   }
 }
 
+/*
 test('first', 1, 'EN');
 test('fifth', 5, 'EN');
 test('tenth', 10, 'EN');
@@ -232,7 +233,9 @@ test('two hundred eight billionth', 208_000_000_000, 'EN');
 test('one trillionth', 1_000_000_000_000, 'EN');
 test('nine hundred ninety nine trillionth', 999_000_000_000_000, 'EN');
 test('nine hundred ninety nine trillion first', 999_000_000_000_001, 'EN');
+*/
 
+// /*
 test('перший', 1, 'UK');
 test("п'ятий", 5, 'UK');
 test('десятий', 10, 'UK');
@@ -284,3 +287,4 @@ test('сто мільйонів чотирьохтисячний', 100_004_000, 
 test('мільярдний', 1_000_000_000, 'UK');
 test('один мільярд двадцятий', 1_000_000_020, 'UK');
 test('трильйонний', 1_000_000_000_000, 'UK');
+// */
