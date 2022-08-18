@@ -10,8 +10,10 @@ window.addEventListener('keypress', pressEnter);
 
 // ordinal array index value in vocabulary object
 // cardinal array index value in vocabulary object
+// genitive case array index in vocabulary object
 const ORDINDX = 0;
 const CARINDX = 1;
+const GENINDX = 2;
 
 // placeholder name depending on the language
 function changePlaceholder() {
@@ -207,6 +209,7 @@ test('ninetieth', 90, 'EN');
 test('one hundredth', 100, 'EN');
 test('one hundred first', 101, 'EN');
 test('one hundred twentieth', 120, 'EN');
+test('one hundred twenty fourth', 124, 'EN');
 test('four hundred ninety first', 491, 'EN');
 test('five hundredth', 500, 'EN');
 test('two thousandth', 2_000, 'EN');
@@ -235,7 +238,7 @@ test('nine hundred ninety nine trillionth', 999_000_000_000_000, 'EN');
 test('nine hundred ninety nine trillion first', 999_000_000_000_001, 'EN');
 */
 
-// /*
+/*
 test('перший', 1, 'UK');
 test("п'ятий", 5, 'UK');
 test('десятий', 10, 'UK');
@@ -249,6 +252,7 @@ test("дев'яностий", 90, 'UK');
 test('сотий', 100, 'UK');
 test('сто перший', 101, 'UK');
 test('сто двадцятий', 120, 'UK');
+test('сто двадцять четвертий', 124, 'UK');
 test('двісті двадцять четвертий', 224, 'UK');
 test('двісті сороковий', 240, 'UK');
 test('чотирьохсотий', 400, 'UK');
@@ -287,4 +291,4 @@ test('сто мільйонів чотирьохтисячний', 100_004_000, 
 test('мільярдний', 1_000_000_000, 'UK');
 test('один мільярд двадцятий', 1_000_000_020, 'UK');
 test('трильйонний', 1_000_000_000_000, 'UK');
-// */
+*/
