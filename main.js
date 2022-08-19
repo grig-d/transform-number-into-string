@@ -185,7 +185,7 @@ function getWords(number, lang, index) {
         words.push(
           library[lang][hundreds / 100][CARINDX] +
             ' ' +
-            library[lang][100][i ? CARINDX : index], // if level > 0 then digits only cardinal
+            library[lang].centum[i ? CARINDX : index], // if level > 0 then digits only cardinal
         );
         //DEL
         if (LOG) {
