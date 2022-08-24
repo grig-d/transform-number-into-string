@@ -15,7 +15,7 @@ window.addEventListener('keypress', pressEnter);
 // ordinal array index value in vocabulary object
 // cardinal array index value in vocabulary object
 // genitive case array index in vocabulary object
-// exxception case array index in vocabulary object
+// exception case array index in vocabulary object
 const ORDINDX = 0;
 const CARINDX = 1;
 const GENINDX = 2;
