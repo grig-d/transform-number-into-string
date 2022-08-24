@@ -9,15 +9,17 @@ const LOG = 1;
 // add event listeners
 refs.language.addEventListener('change', changePlaceholder);
 refs.userInput.addEventListener('keypress', inputCharFilter);
-refs.enterBtn.addEventListener('click', transformManager);
+refs.enterBtn.addEventListener('click', transformer);
 window.addEventListener('keypress', pressEnter);
 
 // ordinal array index value in vocabulary object
 // cardinal array index value in vocabulary object
 // genitive case array index in vocabulary object
+// exxception case array index in vocabulary object
 const ORDINDX = 0;
 const CARINDX = 1;
 const GENINDX = 2;
+const EXCINDX = 3;
 
 // placeholder name depending on the language
 function changePlaceholder() {
@@ -32,7 +34,7 @@ function inputCharFilter(event) {
 // 'Enter' by pressing keyboard
 function pressEnter(event) {
   if (event.code === 'Enter' || event.code === 'NumpadEnter') {
-    transformManager();
+    transformer();
   }
 }
 
@@ -59,7 +61,7 @@ function findOrdinalEndingNumber(number) {
 }
 
 // getting result & output result
-function transformManager() {
+function transformer() {
   // remove leading zeros
   const inputNumber = parseInt(refs.userInput.value, 10);
   // if input is zero or empty
@@ -157,7 +159,12 @@ function getWords(number, lang, index) {
       }
       // from 1 to 19
       if (0 < twoDigits && twoDigits < 20) {
-        words.push(library[lang][twoDigits][i ? CARINDX : index]); // if level > 0 then digits only cardinal
+        // except for UK 1 and 2 thousand
+        if (twoDigits < 3 && lang === 'UK' && i === 1) {
+          words.push(library[lang][twoDigits][EXCINDX]);
+        } else {
+          words.push(library[lang][twoDigits][i ? CARINDX : index]); // if level > 0 then digits only cardinal
+        }
         //DEL
         if (LOG) {
           console.log(words);
@@ -194,7 +201,11 @@ function getWords(number, lang, index) {
       }
 
       if (hundreds && lang === 'UK') {
-        console.log('українські сотні');
+        words.push(library[lang][hundreds][i ? CARINDX : index]);
+        //DEL
+        if (LOG) {
+          console.log(words);
+        }
       }
     }
   }
