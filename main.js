@@ -97,7 +97,7 @@ function transformer() {
   clearInput();
 }
 
-// get cardinal or ordinal words depending on index argument
+// get words depending on index argument
 function getWords(number, lang, index) {
   if (number === 0) {
     return '';
