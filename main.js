@@ -3,13 +3,13 @@ import placeholderNames from './js/placeholderNames.js';
 import library from './js/library.js';
 
 //DEL
-// const LOG = 0;
-const LOG = 1;
+const LOG = 0;
+// const LOG = 1;
 
 // add event listeners
 refs.language.addEventListener('change', changePlaceholder);
 refs.userInput.addEventListener('keypress', inputCharFilter);
-refs.enterBtn.addEventListener('click', transformer);
+refs.enterBtn.addEventListener('click', composer);
 window.addEventListener('keypress', pressEnter);
 
 // ordinal array index value in vocabulary object
@@ -34,7 +34,7 @@ function inputCharFilter(event) {
 // 'Enter' by pressing keyboard
 function pressEnter(event) {
   if (event.code === 'Enter' || event.code === 'NumpadEnter') {
-    transformer();
+    composer();
   }
 }
 
@@ -50,7 +50,19 @@ function clearInput() {
 }
 
 // find ordinal number
-function findOrdinalEndingNumber(number) {
+function findOrdinalEndingNumber(number, language) {
+  if (language === 'UK') {
+    let base = 100;
+    let level = 0;
+    let ordinal = number % base;
+    while (ordinal === 0) {
+      // ordinal number search formats are: xx, xxx, xxx_xxx, xxx_xxx_xxx, xxx_xxx_xxx_xxx, xxx_xxx_xxx_xxx_xxx
+      base *= level ? 1000 : 10;
+      level += 1;
+      ordinal = number % base;
+    }
+    return ordinal;
+  }
   let base = 100;
   let ordinal = number % base;
   while (ordinal === 0) {
@@ -61,7 +73,7 @@ function findOrdinalEndingNumber(number) {
 }
 
 // getting result & output result
-function transformer() {
+function composer() {
   // remove leading zeros
   const inputNumber = parseInt(refs.userInput.value, 10);
   // if input is zero or empty
@@ -69,8 +81,9 @@ function transformer() {
     clearInput();
     return;
   }
-  const ordinalEndingNumber = findOrdinalEndingNumber(inputNumber);
   const curLang = refs.language.value;
+  const ordinalEndingNumber = findOrdinalEndingNumber(inputNumber, curLang);
+  console.log('====================================', ordinalEndingNumber);
 
   //DEL
   if (LOG) {
@@ -82,13 +95,28 @@ function transformer() {
     );
   }
 
-  const fullCardinalWords = getWords(inputNumber, curLang, CARINDX);
-  const ordinalEndingWords = getWords(ordinalEndingNumber, curLang, ORDINDX);
-  const limitIndex = fullCardinalWords.length - ordinalEndingWords.length;
-  const outputValue = [
-    ...fullCardinalWords.filter((el, ind) => ind < limitIndex),
-    ...ordinalEndingWords,
-  ].join(' ');
+  let outputValue;
+
+  if (curLang === 'EN') {
+    const fullCardinalWords = getWords(inputNumber, curLang, CARINDX);
+    const ordinalEndingWords = getWords(ordinalEndingNumber, curLang, ORDINDX);
+    const limitIndex = fullCardinalWords.length - ordinalEndingWords.length;
+    outputValue = [
+      ...fullCardinalWords.filter((el, ind) => ind < limitIndex),
+      ...ordinalEndingWords,
+    ].join(' ');
+  }
+
+  if (curLang === 'UK') {
+    const fullCardinalWords = getWords(inputNumber, curLang, CARINDX);
+    const ordinalEndingWords = getWords(ordinalEndingNumber, curLang, ORDINDX);
+    const limitIndex = fullCardinalWords.length - ordinalEndingWords.length;
+    outputValue = [
+      ...fullCardinalWords.filter((el, ind) => ind < limitIndex),
+      ...ordinalEndingWords,
+    ].join(' ');
+  }
+
   //DEL
   if (LOG) {
     console.log(outputValue);
