@@ -27,7 +27,7 @@ const EN = {
   70: ['seventieth', 'seventy'],
   80: ['eightieth', 'eighty'],
   90: ['ninetieth', 'ninety'],
-  centum: ['hundredth', 'hundred'],
+  100: ['hundredth', 'hundred'],
   levels: [
     ['', ''],
     ['thousandth', 'thousand'],

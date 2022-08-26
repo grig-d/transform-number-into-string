@@ -4,14 +4,14 @@ import library from './js/library.js';
 
 //DEL
 let LOG = 0;
-LOG = 1;
+// LOG = 1;
 
 //DEL
 let testEN = 0;
 // testEN = 1;
 //DEL
 let testUK = 0;
-// testUK = 1;
+testUK = 1;
 
 // add event listeners
 refs.language.addEventListener('change', changePlaceholder);
@@ -107,34 +107,28 @@ function composer() {
   }
 
   let outputValue;
-
   if (curLang === 'EN') {
-    const fullCardinalWords = getWords(inputNumber, curLang, CARINDX);
-    const ordinalEndingWords = getWords(ordinalEndingNumber, curLang, ORDINDX);
+    const fullCardinalWords = getWordsEN(inputNumber, curLang, CARINDX);
+    const ordinalEndingWords = getWordsEN(
+      ordinalEndingNumber,
+      curLang,
+      ORDINDX,
+    );
     const limitIndex = fullCardinalWords.length - ordinalEndingWords.length;
     outputValue = [
       ...fullCardinalWords.filter((el, ind) => ind < limitIndex),
       ...ordinalEndingWords,
     ].join(' ');
   }
-
   if (curLang === 'UK') {
-    const cardinalWords = getWords(cardinalNumber, curLang, CARINDX);
+    const cardinalWords = getWordsUK(cardinalNumber, curLang, CARINDX);
     // if cardinalNumber === 0 then ordinal number is in genitive case
-    const ordinalEndingWords = getWords(
+    const ordinalEndingWords = getWordsUK(
       ordinalEndingNumber,
       curLang,
       cardinalNumber ? ORDINDX : GENINDX, //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>HERE
     );
     outputValue = [...cardinalWords, ...ordinalEndingWords].join(' ');
-
-    // const fullCardinalWords = getWords(inputNumber, curLang, CARINDX);
-    // const ordinalEndingWords = getWords(ordinalEndingNumber, curLang, ORDINDX);
-    // const limitIndex = fullCardinalWords.length - ordinalEndingWords.length;
-    // outputValue = [
-    //   ...fullCardinalWords.filter((el, ind) => ind < limitIndex),
-    //   ...ordinalEndingWords,
-    // ].join(' ');
   }
 
   //DEL
@@ -145,8 +139,63 @@ function composer() {
   clearInput();
 }
 
-// get words depending on index argument
-function getWords(number, lang, index) {
+// get words depending on index argument for EN
+function getWordsEN(number, lang, index) {
+  if (number === 0) {
+    return '';
+  }
+  // split number into parts by 3 or less digits in array to get levels
+  const parts = [];
+  const arrToSplit = number.toString().split('');
+  let endIndex = arrToSplit.length;
+  let startIndex;
+  for (let i = 0; i < Math.ceil(arrToSplit.length / 3); i++) {
+    startIndex = endIndex - 3 < 0 ? 0 : endIndex - 3;
+    parts.push(arrToSplit.slice(startIndex, endIndex).join(''));
+    endIndex -= 3;
+  }
+  const words = [];
+  const partsQty = parts.length;
+  for (let i = 0; i < partsQty; i++) {
+    // i - is level
+    const numberFromPart = parseInt(parts[i]);
+    // skip if part === 0
+    if (numberFromPart > 0) {
+      words.push(library[lang].levels[i][index]);
+      // twoDigits - is number that consists of ones and tens
+      const twoDigits = numberFromPart % 100;
+      const ones = twoDigits % 10;
+      const tens = twoDigits - ones;
+      const hundreds = numberFromPart - twoDigits;
+      // from 1 to 19
+      if (0 < twoDigits && twoDigits < 20) {
+        words.push(library[lang][twoDigits][i ? CARINDX : index]); // if level > 0 then digits only cardinal
+      }
+      // from 20 to 99 only tens
+      else if (twoDigits > 19 && ones === 0) {
+        words.push(library[lang][tens][i ? CARINDX : index]); // if level > 0 then digits only cardinal
+      }
+      // from 20 to 99 with ones > 0
+      else {
+        words.push(library[lang][ones][i ? CARINDX : index]); // if level > 0 then digits only cardinal
+        words.push(library[lang][tens][CARINDX]);
+      }
+      // hundreds
+      if (hundreds) {
+        words.push(
+          library[lang][hundreds / 100][CARINDX] +
+            ' ' +
+            library[lang][100][i ? CARINDX : index], // if level > 0 then digits only cardinal
+        );
+      }
+    }
+  }
+  const result = words.filter(el => el).reverse();
+  return result;
+}
+
+// get words depending on index argument for UK
+function getWordsUK(number, lang, index) {
   //DEL
   console.log('----------number-index', number, index);
   if (number === 0) {
