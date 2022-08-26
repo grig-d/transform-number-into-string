@@ -3,8 +3,15 @@ import placeholderNames from './js/placeholderNames.js';
 import library from './js/library.js';
 
 //DEL
-const LOG = 0;
-// const LOG = 1;
+let LOG = 0;
+LOG = 1;
+
+//DEL
+let testEN = 0;
+// testEN = 1;
+//DEL
+let testUK = 0;
+// testUK = 1;
 
 // add event listeners
 refs.language.addEventListener('change', changePlaceholder);
@@ -51,6 +58,7 @@ function clearInput() {
 
 // find ordinal number
 function findOrdinalEndingNumber(number, language) {
+  // ordinal for UK
   if (language === 'UK') {
     let base = 100;
     let level = 0;
@@ -63,6 +71,7 @@ function findOrdinalEndingNumber(number, language) {
     }
     return ordinal;
   }
+  // ordinal for EN
   let base = 100;
   let ordinal = number % base;
   while (ordinal === 0) {
@@ -83,7 +92,9 @@ function composer() {
   }
   const curLang = refs.language.value;
   const ordinalEndingNumber = findOrdinalEndingNumber(inputNumber, curLang);
-  console.log('====================================', ordinalEndingNumber);
+  const cardinalNumber = inputNumber - ordinalEndingNumber;
+  //DEL
+  console.log('==== ord =', ordinalEndingNumber, 'card =', cardinalNumber);
 
   //DEL
   if (LOG) {
@@ -108,13 +119,22 @@ function composer() {
   }
 
   if (curLang === 'UK') {
-    const fullCardinalWords = getWords(inputNumber, curLang, CARINDX);
-    const ordinalEndingWords = getWords(ordinalEndingNumber, curLang, ORDINDX);
-    const limitIndex = fullCardinalWords.length - ordinalEndingWords.length;
-    outputValue = [
-      ...fullCardinalWords.filter((el, ind) => ind < limitIndex),
-      ...ordinalEndingWords,
-    ].join(' ');
+    const cardinalWords = getWords(cardinalNumber, curLang, CARINDX);
+    // if cardinalNumber === 0 then ordinal number is in genitive case
+    const ordinalEndingWords = getWords(
+      ordinalEndingNumber,
+      curLang,
+      cardinalNumber ? ORDINDX : GENINDX, //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>HERE
+    );
+    outputValue = [...cardinalWords, ...ordinalEndingWords].join(' ');
+
+    // const fullCardinalWords = getWords(inputNumber, curLang, CARINDX);
+    // const ordinalEndingWords = getWords(ordinalEndingNumber, curLang, ORDINDX);
+    // const limitIndex = fullCardinalWords.length - ordinalEndingWords.length;
+    // outputValue = [
+    //   ...fullCardinalWords.filter((el, ind) => ind < limitIndex),
+    //   ...ordinalEndingWords,
+    // ].join(' ');
   }
 
   //DEL
@@ -127,9 +147,20 @@ function composer() {
 
 // get words depending on index argument
 function getWords(number, lang, index) {
+  //DEL
+  console.log('----------number-index', number, index);
   if (number === 0) {
     return '';
   }
+  // exceptions for UK ordinal 1_000 1_000_000 1_000_000_000 1_000_000_000_000
+  if (lang === 'UK') {
+    let base = 1000;
+    let level = 1;
+    if (number / base === 1) {
+      return [library[lang].levels[level][ORDINDX]]; // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    }
+  }
+
   // split number into parts by 3 or less digits in array to get levels
   const parts = [];
   const arrToSplit = number.toString().split('');
@@ -142,6 +173,7 @@ function getWords(number, lang, index) {
   }
 
   const words = [];
+  console.log('initial words array', words);
   const partsQty = parts.length;
 
   //DEL
@@ -153,17 +185,30 @@ function getWords(number, lang, index) {
   for (let i = 0; i < partsQty; i++) {
     // i - is level
     const numberFromPart = parseInt(parts[i]);
-    //DEL
-    if (LOG) {
-      console.log('numberFromPart', numberFromPart);
-    }
     // skip if part === 0
     if (numberFromPart > 0) {
-      words.push(library[lang].levels[i][index]);
+      // if index is bigger than last element then take index of the last element in array
+      let curInder =
+        index < library[lang].levels[i].length
+          ? index
+          : library[lang].levels[i].length - 1;
+
+      console.log('words.length', words.length);
+      console.log('index', index);
+      console.log('curInder', curInder);
+      if (words.length === 0 && index === GENINDX) {
+        curInder = ORDINDX;
+        console.log('switch index', curInder);
+      }
+      const elementToPush = library[lang].levels[i][curInder];
+      // to avoid pushing empty strings to words array
+      if (elementToPush) {
+        words.push(elementToPush);
+      }
       //DEL
       if (LOG) {
         console.log('numberFromPart', numberFromPart);
-        console.log(words);
+        console.log('words', words);
       }
       // twoDigits - is number that consists of ones and tens
       const twoDigits = numberFromPart % 100;
@@ -191,7 +236,8 @@ function getWords(number, lang, index) {
         if (twoDigits < 3 && lang === 'UK' && i === 1) {
           words.push(library[lang][twoDigits][EXCINDX]);
         } else {
-          words.push(library[lang][twoDigits][i ? CARINDX : index]); // if level > 0 then digits only cardinal
+          // words.push(library[lang][twoDigits][i ? CARINDX : index]); // if level > 0 then digits only cardinal
+          words.push(library[lang][twoDigits][i ? CARINDX : curInder]); // if level > 0 then digits only cardinal
         }
         //DEL
         if (LOG) {
@@ -200,7 +246,8 @@ function getWords(number, lang, index) {
       }
       // from 20 to 99 only tens
       else if (twoDigits > 19 && ones === 0) {
-        words.push(library[lang][tens][i ? CARINDX : index]); // if level > 0 then digits only cardinal
+        // words.push(library[lang][tens][i ? CARINDX : index]); // if level > 0 then digits only cardinal
+        words.push(library[lang][tens][i ? CARINDX : curInder]); // if level > 0 then digits only cardinal
         //DEL
         if (LOG) {
           console.log(words);
@@ -208,7 +255,8 @@ function getWords(number, lang, index) {
       }
       // from 20 to 99 with ones > 0
       else {
-        words.push(library[lang][ones][i ? CARINDX : index]); // if level > 0 then digits only cardinal
+        // words.push(library[lang][ones][i ? CARINDX : index]); // if level > 0 then digits only cardinal
+        words.push(library[lang][ones][i ? CARINDX : curInder]); // if level > 0 then digits only cardinal
         words.push(library[lang][tens][CARINDX]);
         //DEL
         if (LOG) {
@@ -229,14 +277,15 @@ function getWords(number, lang, index) {
       }
 
       if (hundreds && lang === 'UK') {
-        words.push(library[lang][hundreds][i ? CARINDX : index]);
+        // words.push(library[lang][hundreds][i ? CARINDX : index]);
+        words.push(library[lang][hundreds][i ? CARINDX : curInder]);
         //DEL
         if (LOG) {
           console.log(words);
         }
       }
     }
-  }
+  } // end of cycle
   const result = words.filter(el => el).reverse();
   //DEL
   if (LOG) {
@@ -247,16 +296,10 @@ function getWords(number, lang, index) {
 
 // TEST
 function test(stringToMatch, numberToCheck, curLang) {
-  // return;
-  const ordinalEndingNumber = findOrdinalEndingNumber(numberToCheck);
-  const fullCardinalWords = getWords(numberToCheck, curLang, CARINDX);
-  const ordinalEndingWords = getWords(ordinalEndingNumber, curLang, ORDINDX);
-  const limitIndex = fullCardinalWords.length - ordinalEndingWords.length;
-  const outputValue = [
-    ...fullCardinalWords.filter((el, ind) => ind < limitIndex),
-    ...ordinalEndingWords,
-  ].join(' ');
-
+  refs.language.value = curLang;
+  refs.userInput.value = numberToCheck;
+  composer();
+  const outputValue = refs.outputResult.textContent;
   if (outputValue === stringToMatch) {
     console.log(
       '%c OK ',
@@ -278,96 +321,96 @@ function test(stringToMatch, numberToCheck, curLang) {
   }
 }
 
-/*
-test('first', 1, 'EN');
-test('fifth', 5, 'EN');
-test('tenth', 10, 'EN');
-test('fifteenth', 15, 'EN');
-test('twenty fifth', 25, 'EN');
-test('ninetieth', 90, 'EN');
-test('one hundredth', 100, 'EN');
-test('one hundred first', 101, 'EN');
-test('one hundred twentieth', 120, 'EN');
-test('one hundred twenty fourth', 124, 'EN');
-test('four hundred ninety first', 491, 'EN');
-test('five hundredth', 500, 'EN');
-test('two thousandth', 2_000, 'EN');
-test('two thousand eighth', 2_008, 'EN');
-test('two thousand fourteenth', 2_014, 'EN');
-test('three thousand seven hundredth', 3_700, 'EN');
-test('ten thousandth', 10_000, 'EN');
-test('seventy one thousandth', 71_000, 'EN');
-test('one hundred forty five thousandth', 145_000, 'EN');
-test('nine hundred three thousandth', 903_000, 'EN');
-test('one million two hundred ninety thousandth', 1_290_000, 'EN');
-test('nine millionth', 9_000_000, 'EN');
-test('ten million four thousandth', 10_004_000, 'EN');
-test('one hundred millionth', 100_000_000, 'EN');
-test('one billion one hundred seventy thousandth', 1_000_170_000, 'EN');
-test(
-  'fifteen billion nine hundred twelve million fifty thousandth',
-  15_912_050_000,
-  'EN',
-);
-test('twenty three billionth', 23_000_000_000, 'EN');
-test('one hundred billionth', 100_000_000_000, 'EN');
-test('two hundred eight billionth', 208_000_000_000, 'EN');
-test('one trillionth', 1_000_000_000_000, 'EN');
-test('nine hundred ninety nine trillionth', 999_000_000_000_000, 'EN');
-test('nine hundred ninety nine trillion first', 999_000_000_000_001, 'EN');
-*/
+if (testEN) {
+  test('first', 1, 'EN');
+  test('fifth', 5, 'EN');
+  test('tenth', 10, 'EN');
+  test('fifteenth', 15, 'EN');
+  test('twenty fifth', 25, 'EN');
+  test('ninetieth', 90, 'EN');
+  test('one hundredth', 100, 'EN');
+  test('one hundred first', 101, 'EN');
+  test('one hundred twentieth', 120, 'EN');
+  test('one hundred twenty fourth', 124, 'EN');
+  test('four hundred ninety first', 491, 'EN');
+  test('five hundredth', 500, 'EN');
+  test('two thousandth', 2_000, 'EN');
+  test('two thousand eighth', 2_008, 'EN');
+  test('two thousand fourteenth', 2_014, 'EN');
+  test('three thousand seven hundredth', 3_700, 'EN');
+  test('ten thousandth', 10_000, 'EN');
+  test('seventy one thousandth', 71_000, 'EN');
+  test('one hundred forty five thousandth', 145_000, 'EN');
+  test('nine hundred three thousandth', 903_000, 'EN');
+  test('one million two hundred ninety thousandth', 1_290_000, 'EN');
+  test('nine millionth', 9_000_000, 'EN');
+  test('ten million four thousandth', 10_004_000, 'EN');
+  test('one hundred millionth', 100_000_000, 'EN');
+  test('one billion one hundred seventy thousandth', 1_000_170_000, 'EN');
+  test(
+    'fifteen billion nine hundred twelve million fifty thousandth',
+    15_912_050_000,
+    'EN',
+  );
+  test('twenty three billionth', 23_000_000_000, 'EN');
+  test('one hundred billionth', 100_000_000_000, 'EN');
+  test('two hundred eight billionth', 208_000_000_000, 'EN');
+  test('one trillionth', 1_000_000_000_000, 'EN');
+  test('nine hundred ninety nine trillionth', 999_000_000_000_000, 'EN');
+  test('nine hundred ninety nine trillion first', 999_000_000_000_001, 'EN');
+}
 
-/*
-test('перший', 1, 'UK');
-test("п'ятий", 5, 'UK');
-test('десятий', 10, 'UK');
-test("п'ятнадцятий", 15, 'UK');
-test('двадцятий', 20, 'UK');
-test('двадцять перший', 21, 'UK');
-test("двадцять п'ятий", 25, 'UK');
-test('тридцятий', 30, 'UK');
-test('сорок восьмий', 48, 'UK');
-test("дев'яностий", 90, 'UK');
-test('сотий', 100, 'UK');
-test('сто перший', 101, 'UK');
-test('сто двадцятий', 120, 'UK');
-test('сто двадцять четвертий', 124, 'UK');
-test('двісті двадцять четвертий', 224, 'UK');
-test('двісті сороковий', 240, 'UK');
-test('чотирьохсотий', 400, 'UK');
-test('чотириста третій', 403, 'UK');
-test("чотириста дев'яносто перший", 491, 'UK');
-test("п'ятисотий", 500, 'UK');
-test('тисячний', 1_000, 'UK');
-test('двохтисячний', 2_000, 'UK');
-test('дві тисячі перший', 2_001, 'UK');
-test('дві тисячі чотирнадцятий', 2_014, 'UK');
-test('три тисячі семисотий', 3_700, 'UK');
-test('вісім тисяч сотий', 8_100, 'UK');
-test('десятитисячний', 10_000, 'UK');
-test('сімдесятиоднотисячний', 71_000, 'UK');
-test('сімдесятидвохтисячний', 72_000, 'UK');
-test("сімдесятип'ятитисячний", 75_000, 'UK');
-test('стотисячний', 100_000, 'UK');
-test("стосорокап'ятитисячний", 145_000, 'UK');
-test("сто сорок п'ять тисяч перший", 145_001, 'UK');
-test("сто сорок п'ять тисяч сто перший", 145_101, 'UK');
-test("вісімсот вісім тисяч тридцять дев'ятий", 808_039, 'UK');
-test("дев'ятсоттрьохтисячний", 903_000, 'UK');
-test('мільйонний', 1_000_000, 'UK');
-test('один мільйон перший', 1_000_001, 'UK');
-test('трьохмільйонний', 3_000_000, 'UK');
-test('три мільйони перший', 3_000_001, 'UK');
-test('чотири мільйони сотий', 4_000_100, 'UK');
-test('чотири мільйони двохтисячний', 4_002_000, 'UK');
-test("дев'ять мільйонів тридцятидвохтисячний", 9_032_000, 'UK');
-test("п'ять мільйонів десятий", 5_000_010, 'UK');
-test('сім мільйонів десятий', 7_000_010, 'UK');
-test('вісім мільйонів двадцять тисяч одинадцятий', 8_020_011, 'UK');
-test('чотири мільйони сотий', 4_000_100, 'UK');
-test('стомільйонний', 100_000_000, 'UK');
-test('сто мільйонів чотирьохтисячний', 100_004_000, 'UK');
-test('мільярдний', 1_000_000_000, 'UK');
-test('один мільярд двадцятий', 1_000_000_020, 'UK');
-test('трильйонний', 1_000_000_000_000, 'UK');
-*/
+if (testUK) {
+  test('перший', 1, 'UK');
+  test("п'ятий", 5, 'UK');
+  test('десятий', 10, 'UK');
+  test("п'ятнадцятий", 15, 'UK');
+  test('двадцятий', 20, 'UK');
+  test('двадцять перший', 21, 'UK');
+  test("двадцять п'ятий", 25, 'UK');
+  test('тридцятий', 30, 'UK');
+  test('сорок восьмий', 48, 'UK');
+  test("дев'яностий", 90, 'UK');
+  test('сотий', 100, 'UK');
+  test('сто перший', 101, 'UK');
+  test('сто двадцятий', 120, 'UK');
+  test('сто двадцять четвертий', 124, 'UK');
+  test('двісті двадцять четвертий', 224, 'UK');
+  test('двісті сороковий', 240, 'UK');
+  test('чотирьохсотий', 400, 'UK');
+  test('чотириста третій', 403, 'UK');
+  test("чотириста дев'яносто перший", 491, 'UK');
+  test("п'ятисотий", 500, 'UK');
+  test('тисячний', 1_000, 'UK');
+  test('двохтисячний', 2_000, 'UK');
+  test('дві тисячі перший', 2_001, 'UK');
+  test('дві тисячі чотирнадцятий', 2_014, 'UK');
+  test('три тисячі семисотий', 3_700, 'UK');
+  test('вісім тисяч сотий', 8_100, 'UK');
+  test('десятитисячний', 10_000, 'UK');
+  test('сімдесятиоднотисячний', 71_000, 'UK');
+  test('сімдесятидвохтисячний', 72_000, 'UK');
+  test("сімдесятип'ятитисячний", 75_000, 'UK');
+  test('стотисячний', 100_000, 'UK');
+  test("стосорокап'ятитисячний", 145_000, 'UK');
+  test("сто сорок п'ять тисяч перший", 145_001, 'UK');
+  test("сто сорок п'ять тисяч сто перший", 145_101, 'UK');
+  test("вісімсот вісім тисяч тридцять дев'ятий", 808_039, 'UK');
+  test("дев'ятсоттрьохтисячний", 903_000, 'UK');
+  test('мільйонний', 1_000_000, 'UK');
+  test('один мільйон перший', 1_000_001, 'UK');
+  test('трьохмільйонний', 3_000_000, 'UK');
+  test('три мільйони перший', 3_000_001, 'UK');
+  test('чотири мільйони сотий', 4_000_100, 'UK');
+  test('чотири мільйони двохтисячний', 4_002_000, 'UK');
+  test("дев'ять мільйонів тридцятидвохтисячний", 9_032_000, 'UK');
+  test("п'ять мільйонів десятий", 5_000_010, 'UK');
+  test('сім мільйонів десятий', 7_000_010, 'UK');
+  test('вісім мільйонів двадцять тисяч одинадцятий', 8_020_011, 'UK');
+  test('чотири мільйони сотий', 4_000_100, 'UK');
+  test('стомільйонний', 100_000_000, 'UK');
+  test('сто мільйонів чотирьохтисячний', 100_004_000, 'UK');
+  test('мільярдний', 1_000_000_000, 'UK');
+  test('один мільярд двадцятий', 1_000_000_020, 'UK');
+  test('трильйонний', 1_000_000_000_000, 'UK');
+}
