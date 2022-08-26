@@ -11,7 +11,7 @@ let testEN = 0;
 // testEN = 1;
 //DEL
 let testUK = 0;
-testUK = 1;
+// testUK = 1;
 
 // add event listeners
 refs.language.addEventListener('change', changePlaceholder);
@@ -93,8 +93,6 @@ function composer() {
   const curLang = refs.language.value;
   const ordinalEndingNumber = findOrdinalEndingNumber(inputNumber, curLang);
   const cardinalNumber = inputNumber - ordinalEndingNumber;
-  //DEL
-  console.log('==== ord =', ordinalEndingNumber, 'card =', cardinalNumber);
 
   //DEL
   if (LOG) {
@@ -122,13 +120,18 @@ function composer() {
   }
   if (curLang === 'UK') {
     const cardinalWords = getWordsUK(cardinalNumber, curLang, CARINDX);
-    // if cardinalNumber === 0 then ordinal number is in genitive case
+    // if ordinalNumber > 999 then ordinal number is in genitive case
     const ordinalEndingWords = getWordsUK(
       ordinalEndingNumber,
       curLang,
-      cardinalNumber ? ORDINDX : GENINDX, //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>HERE
+      ordinalEndingNumber > 999 ? GENINDX : ORDINDX,
     );
-    outputValue = [...cardinalWords, ...ordinalEndingWords].join(' ');
+    const ordConnector = ordinalEndingNumber > 1000 ? '' : ' ';
+    outputValue = (
+      [...cardinalWords].join(' ') +
+      ' ' +
+      [...ordinalEndingWords].join(ordConnector)
+    ).trim();
   }
 
   //DEL
@@ -196,18 +199,20 @@ function getWordsEN(number, lang, index) {
 
 // get words depending on index argument for UK
 function getWordsUK(number, lang, index) {
-  //DEL
-  console.log('----------number-index', number, index);
   if (number === 0) {
     return '';
   }
   // exceptions for UK ordinal 1_000 1_000_000 1_000_000_000 1_000_000_000_000
-  if (lang === 'UK') {
+  if (index === GENINDX) {
     let base = 1000;
     let level = 1;
-    if (number / base === 1) {
-      return [library[lang].levels[level][ORDINDX]]; // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    }
+    do {
+      if (number / base === 1) {
+        return [library[lang].levels[level][ORDINDX]];
+      }
+      base *= 1000;
+      level += 1;
+    } while (number / base >= 1);
   }
 
   // split number into parts by 3 or less digits in array to get levels
@@ -222,13 +227,12 @@ function getWordsUK(number, lang, index) {
   }
 
   const words = [];
-  console.log('initial words array', words);
   const partsQty = parts.length;
 
   //DEL
   if (LOG) {
+    console.log('initial words array', words);
     console.log('parts', parts);
-    console.log('partsQty', partsQty);
   }
 
   for (let i = 0; i < partsQty; i++) {
@@ -241,29 +245,32 @@ function getWordsUK(number, lang, index) {
         index < library[lang].levels[i].length
           ? index
           : library[lang].levels[i].length - 1;
-
-      console.log('words.length', words.length);
-      console.log('index', index);
-      console.log('curInder', curInder);
+      // switch current index for first word in array in genitive case
       if (words.length === 0 && index === GENINDX) {
         curInder = ORDINDX;
-        console.log('switch index', curInder);
       }
-      const elementToPush = library[lang].levels[i][curInder];
+      
+      ////>>>> only cardinal levels, not genitive
+      const elementToPush = library[lang].levels[i][curInder]; //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> LEVEL
       // to avoid pushing empty strings to words array
       if (elementToPush) {
         words.push(elementToPush);
+        console.log('HERE WE GO >>> numberFromPart', numberFromPart);
+        ////<<<<
       }
       //DEL
       if (LOG) {
-        console.log('numberFromPart', numberFromPart);
         console.log('words', words);
+        console.log('numberFromPart', numberFromPart);
+        console.log('curInder', curInder);
       }
       // twoDigits - is number that consists of ones and tens
       const twoDigits = numberFromPart % 100;
       const ones = twoDigits % 10;
       const tens = twoDigits - ones;
       const hundreds = numberFromPart - twoDigits;
+
+
       //DEL
       if (LOG) {
         console.log(
@@ -279,14 +286,19 @@ function getWordsUK(number, lang, index) {
           ones,
         );
       }
+      // switch current index if array is not empty in genitive case
+      if (words.length > 0 && index === GENINDX) {
+        curInder = GENINDX;
+      }
+      const CARorGEN = index === GENINDX && number > 1000 ? GENINDX : CARINDX; //@@@@@@@@@@@@@@@@@@@@@@@@
       // from 1 to 19
       if (0 < twoDigits && twoDigits < 20) {
         // except for UK 1 and 2 thousand
-        if (twoDigits < 3 && lang === 'UK' && i === 1) {
+        if (twoDigits < 3 && lang === 'UK' && i === 1 && index === CARINDX) {
           words.push(library[lang][twoDigits][EXCINDX]);
         } else {
           // words.push(library[lang][twoDigits][i ? CARINDX : index]); // if level > 0 then digits only cardinal
-          words.push(library[lang][twoDigits][i ? CARINDX : curInder]); // if level > 0 then digits only cardinal
+          words.push(library[lang][twoDigits][i ? CARorGEN : curInder]); // if level > 0 then digits only cardinal
         }
         //DEL
         if (LOG) {
@@ -296,7 +308,7 @@ function getWordsUK(number, lang, index) {
       // from 20 to 99 only tens
       else if (twoDigits > 19 && ones === 0) {
         // words.push(library[lang][tens][i ? CARINDX : index]); // if level > 0 then digits only cardinal
-        words.push(library[lang][tens][i ? CARINDX : curInder]); // if level > 0 then digits only cardinal
+        words.push(library[lang][tens][i ? CARorGEN : curInder]); // if level > 0 then digits only cardinal
         //DEL
         if (LOG) {
           console.log(words);
@@ -305,8 +317,8 @@ function getWordsUK(number, lang, index) {
       // from 20 to 99 with ones > 0
       else {
         // words.push(library[lang][ones][i ? CARINDX : index]); // if level > 0 then digits only cardinal
-        words.push(library[lang][ones][i ? CARINDX : curInder]); // if level > 0 then digits only cardinal
-        words.push(library[lang][tens][CARINDX]);
+        words.push(library[lang][ones][i ? CARorGEN : curInder]); // if level > 0 then digits only cardinal
+        words.push(library[lang][tens][CARorGEN]);
         //DEL
         if (LOG) {
           console.log(words);
@@ -411,31 +423,25 @@ if (testEN) {
 
 if (testUK) {
   test('перший', 1, 'UK');
-  test("п'ятий", 5, 'UK');
   test('десятий', 10, 'UK');
-  test("п'ятнадцятий", 15, 'UK');
+  test('одинадцятий', 11, 'UK');
   test('двадцятий', 20, 'UK');
   test('двадцять перший', 21, 'UK');
-  test("двадцять п'ятий", 25, 'UK');
-  test('тридцятий', 30, 'UK');
-  test('сорок восьмий', 48, 'UK');
-  test("дев'яностий", 90, 'UK');
+  test('сорок другий', 42, 'UK');
+  test("дев'яносто дев'ятий", 99, 'UK');
   test('сотий', 100, 'UK');
   test('сто перший', 101, 'UK');
   test('сто двадцятий', 120, 'UK');
   test('сто двадцять четвертий', 124, 'UK');
   test('двісті двадцять четвертий', 224, 'UK');
-  test('двісті сороковий', 240, 'UK');
-  test('чотирьохсотий', 400, 'UK');
-  test('чотириста третій', 403, 'UK');
-  test("чотириста дев'яносто перший", 491, 'UK');
   test("п'ятисотий", 500, 'UK');
+  test("дев'ятсот дев'яносто дев'ятий", 999, 'UK');
   test('тисячний', 1_000, 'UK');
+  test('одна тисяча перший', 1_001, 'UK');
   test('двохтисячний', 2_000, 'UK');
-  test('дві тисячі перший', 2_001, 'UK');
-  test('дві тисячі чотирнадцятий', 2_014, 'UK');
-  test('три тисячі семисотий', 3_700, 'UK');
-  test('вісім тисяч сотий', 8_100, 'UK');
+  test('дві тисячі другий', 2_002, 'UK');
+  test('чотири тисячі чотирьохсотий', 4_400, 'UK');
+  test('шість тисяч сотий', 6_100, 'UK');
   test('десятитисячний', 10_000, 'UK');
   test('сімдесятиоднотисячний', 71_000, 'UK');
   test('сімдесятидвохтисячний', 72_000, 'UK');
@@ -461,5 +467,23 @@ if (testUK) {
   test('сто мільйонів чотирьохтисячний', 100_004_000, 'UK');
   test('мільярдний', 1_000_000_000, 'UK');
   test('один мільярд двадцятий', 1_000_000_020, 'UK');
+  test('два мільярда сотий', 2_000_000_100, 'UK');
   test('трильйонний', 1_000_000_000_000, 'UK');
 }
+
+test('дві тисячі другий', 2_002, 'UK');
+test('чотири тисячі чотирьохсотий', 4_400, 'UK');
+test('шість тисяч сотий', 6_100, 'UK');
+test("сто сорок п'ять тисяч перший", 145_001, 'UK');
+test("сто сорок п'ять тисяч сто перший", 145_101, 'UK');
+test("вісімсот вісім тисяч тридцять дев'ятий", 808_039, 'UK');
+test('три мільйони перший', 3_000_001, 'UK');
+test('чотири мільйони сотий', 4_000_100, 'UK');
+test('чотири мільйони двохтисячний', 4_002_000, 'UK');
+test("дев'ять мільйонів тридцятидвохтисячний", 9_032_000, 'UK');
+test("п'ять мільйонів десятий", 5_000_010, 'UK');
+test('сім мільйонів десятий', 7_000_010, 'UK');
+test('вісім мільйонів двадцять тисяч одинадцятий', 8_020_011, 'UK');
+test('чотири мільйони сотий', 4_000_100, 'UK');
+test('сто мільйонів чотирьохтисячний', 100_004_000, 'UK');
+test('два мільярда сотий', 2_000_000_100, 'UK');
