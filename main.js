@@ -11,7 +11,7 @@ let testEN = 0;
 // testEN = 1;
 //DEL
 let testUK = 0;
-testUK = 1;
+// testUK = 1;
 
 // add event listeners
 refs.language.addEventListener('change', changePlaceholder);
@@ -240,16 +240,10 @@ function getWordsUK(number, lang, index) {
     const numberFromPart = parseInt(parts[i]);
     // skip if part === 0
     if (numberFromPart > 0) {
+
       // if index is bigger than last element then take index of the last element in array
-
-      //////////////////////////////////////////////////////////////----DEL---?
-      // let curInder =
-      //   index < library[lang].levels[i].length
-      //     ? index
-      //     : library[lang].levels[i].length - 1;
       let curInder = index;
-      //////////////////////////////////////////////////////////////----DEL---?
-
+      
       // switch current index for first word in array in genitive case
       if (words.length === 0 && index === GENINDX) {
         curInder = ORDINDX;
@@ -261,7 +255,6 @@ function getWordsUK(number, lang, index) {
       const tens = twoDigits - ones;
       const hundreds = numberFromPart - twoDigits;
 
-      ////>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       // levelQtyINDX - level quantity index in vocabulary array only in cardinal case levels
       let levelQtyINDX = curInder;
       if (index === CARINDX) {
@@ -274,9 +267,7 @@ function getWordsUK(number, lang, index) {
       // to avoid pushing empty strings to words array
       if (elementToPush) {
         words.push(elementToPush);
-        console.log('HERE WE GO >>> numberFromPart', numberFromPart);
       }
-      ////<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
       //DEL
       if (LOG) {
@@ -327,7 +318,6 @@ function getWordsUK(number, lang, index) {
       }
       // from 20 to 99 with ones > 0
       else {
-        // words.push(library[lang][ones][i ? CARINDX : index]); // if level > 0 then digits only cardinal
         words.push(library[lang][ones][i ? CARorGEN : curInder]); // if level > 0 then digits only cardinal
         words.push(library[lang][tens][CARorGEN]);
         //DEL
@@ -337,7 +327,7 @@ function getWordsUK(number, lang, index) {
       }
       // hundreds
       if (hundreds) {
-        words.push(library[lang][hundreds][i ? CARINDX : curInder]);
+        words.push(library[lang][hundreds][i ? CARorGEN : curInder]);
         //DEL
         if (LOG) {
           console.log(words);
@@ -445,11 +435,12 @@ if (testUK) {
   test('сімдесятидвохтисячний', 72_000, 'UK');
   test("сімдесятип'ятитисячний", 75_000, 'UK');
   test('стотисячний', 100_000, 'UK');
-  test("стосорокап'ятитисячний", 145_000, 'UK');
+  test("стосорокаоднотисячний", 141_000, 'UK');
+  test("двохсотсорокадвохтисячний", 242_000, 'UK');
   test("сто сорок п'ять тисяч перший", 145_001, 'UK');
   test("сто сорок п'ять тисяч сто перший", 145_101, 'UK');
   test("вісімсот вісім тисяч тридцять дев'ятий", 808_039, 'UK');
-  test("дев'ятсоттрьохтисячний", 903_000, 'UK');
+  test("дев'ятисоттрьохтисячний", 903_000, 'UK');
   test('мільйонний', 1_000_000, 'UK');
   test('один мільйон перший', 1_000_001, 'UK');
   test('трьохмільйонний', 3_000_000, 'UK');
@@ -468,20 +459,3 @@ if (testUK) {
   test('два мільярди сотий', 2_000_000_100, 'UK');
   test('трильйонний', 1_000_000_000_000, 'UK');
 }
-
-// test('дві тисячі другий', 2_002, 'UK');
-// test('чотири тисячі чотирьохсотий', 4_400, 'UK');
-// test('шість тисяч сотий', 6_100, 'UK');
-// test("сто сорок п'ять тисяч перший", 145_001, 'UK');
-// test("сто сорок п'ять тисяч сто перший", 145_101, 'UK');
-// test("вісімсот вісім тисяч тридцять дев'ятий", 808_039, 'UK');
-// test('три мільйони перший', 3_000_001, 'UK');
-// test('чотири мільйони сотий', 4_000_100, 'UK');
-// test('чотири мільйони двохтисячний', 4_002_000, 'UK');
-// test("дев'ять мільйонів тридцятидвохтисячний", 9_032_000, 'UK');
-// test("п'ять мільйонів десятий", 5_000_010, 'UK');
-// test('сім мільйонів десятий', 7_000_010, 'UK');
-// test('вісім мільйонів двадцять тисяч одинадцятий', 8_020_011, 'UK');
-// test('чотири мільйони сотий', 4_000_100, 'UK');
-// test('сто мільйонів чотирьохтисячний', 100_004_000, 'UK');
-// test('два мільярди сотий', 2_000_000_100, 'UK');
