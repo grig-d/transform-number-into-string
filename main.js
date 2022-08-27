@@ -75,13 +75,14 @@ function findOrdinalEndingNumber(number, language) {
   let base = 100;
   let ordinal = number % base;
   while (ordinal === 0) {
+    // ordinal number search formats are: xx, xxx, x_xxx, xx_xxx, xxx_xxx etc.
     base *= 10;
     ordinal = number % base;
   }
   return ordinal;
 }
 
-// getting result & output result
+// getting, compose and output result
 function composer() {
   // remove leading zeros
   const inputNumber = parseInt(refs.userInput.value, 10);
@@ -90,6 +91,7 @@ function composer() {
     clearInput();
     return;
   }
+  // current language
   const curLang = refs.language.value;
   const ordinalEndingNumber = findOrdinalEndingNumber(inputNumber, curLang);
   const cardinalNumber = inputNumber - ordinalEndingNumber;
@@ -105,6 +107,7 @@ function composer() {
   }
 
   let outputValue;
+  // compose EN result
   if (curLang === 'EN') {
     const fullCardinalWords = getWordsEN(inputNumber, curLang, CARINDX);
     const ordinalEndingWords = getWordsEN(
@@ -118,6 +121,7 @@ function composer() {
       ...ordinalEndingWords,
     ].join(' ');
   }
+  // compose UK result
   if (curLang === 'UK') {
     const cardinalWords = getWordsUK(cardinalNumber, curLang, CARINDX);
     // if ordinalNumber > 999 then ordinal number is in genitive case
@@ -126,6 +130,7 @@ function composer() {
       curLang,
       ordinalEndingNumber > 999 ? GENINDX : ORDINDX,
     );
+    // connector for ordinal words
     const ordConnector = ordinalEndingNumber > 1000 ? '' : ' ';
     outputValue = (
       [...cardinalWords].join(' ') +
@@ -193,6 +198,7 @@ function getWordsEN(number, lang, index) {
       }
     }
   }
+  // filter array to remove empty elements
   const result = words.filter(el => el).reverse();
   return result;
 }
@@ -240,10 +246,7 @@ function getWordsUK(number, lang, index) {
     const numberFromPart = parseInt(parts[i]);
     // skip if part === 0
     if (numberFromPart > 0) {
-
-      // if index is bigger than last element then take index of the last element in array
       let curInder = index;
-      
       // switch current index for first word in array in genitive case
       if (words.length === 0 && index === GENINDX) {
         curInder = ORDINDX;
@@ -258,6 +261,7 @@ function getWordsUK(number, lang, index) {
       // levelQtyINDX - level quantity index in vocabulary array only in cardinal case levels
       let levelQtyINDX = curInder;
       if (index === CARINDX) {
+        // if index is bigger than last element then take index of the last element in array
         levelQtyINDX =
           ones && ones < library[lang].levels[i].length
             ? ones
@@ -296,10 +300,9 @@ function getWordsUK(number, lang, index) {
       // from 1 to 19
       if (0 < twoDigits && twoDigits < 20) {
         // except for UK 1 and 2 thousand
-        if (twoDigits < 3 && lang === 'UK' && i === 1 && index === CARINDX) {
+        if (twoDigits < 3 && i === 1 && index === CARINDX) {
           words.push(library[lang][twoDigits][EXCINDX]);
         } else {
-          // words.push(library[lang][twoDigits][i ? CARINDX : index]); // if level > 0 then digits only cardinal
           words.push(library[lang][twoDigits][i ? CARorGEN : curInder]); // if level > 0 then digits only cardinal
         }
         //DEL
@@ -309,7 +312,6 @@ function getWordsUK(number, lang, index) {
       }
       // from 20 to 99 only tens
       else if (twoDigits > 19 && ones === 0) {
-        // words.push(library[lang][tens][i ? CARINDX : index]); // if level > 0 then digits only cardinal
         words.push(library[lang][tens][i ? CARorGEN : curInder]); // if level > 0 then digits only cardinal
         //DEL
         if (LOG) {
@@ -334,7 +336,8 @@ function getWordsUK(number, lang, index) {
         }
       }
     }
-  } // end of cycle
+  }
+  // filter array to remove empty elements
   const result = words.filter(el => el).reverse();
   //DEL
   if (LOG) {
@@ -435,8 +438,8 @@ if (testUK) {
   test('сімдесятидвохтисячний', 72_000, 'UK');
   test("сімдесятип'ятитисячний", 75_000, 'UK');
   test('стотисячний', 100_000, 'UK');
-  test("стосорокаоднотисячний", 141_000, 'UK');
-  test("двохсотсорокадвохтисячний", 242_000, 'UK');
+  test('стосорокаоднотисячний', 141_000, 'UK');
+  test('двохсотсорокадвохтисячний', 242_000, 'UK');
   test("сто сорок п'ять тисяч перший", 145_001, 'UK');
   test("сто сорок п'ять тисяч сто перший", 145_101, 'UK');
   test("вісімсот вісім тисяч тридцять дев'ятий", 808_039, 'UK');
