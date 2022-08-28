@@ -1,36 +1,23 @@
 import refs from './js/refs.js';
 import placeholderNames from './js/placeholderNames.js';
-import library from './js/library.js';
+import getWordsEN from './js/getWordsEN.js';
+import getWordsUK from './js/getWordsUK.js';
+import getWordsDE from './js/getWordsDE.js';
 
-const ORDINDX = 0;
-const CARINDX = 1;
-const GENINDX = 2;
-const EXCINDX = 3;
-
-//DEL
-let LOG = 0;
-// LOG = 1;
-
-//DEL
-let testEN = 0;
-testEN = 1;
-//DEL
-let testUK = 0;
-testUK = 1;
-//DEL
-let testDE = 0;
-testDE = 1;
+// ordinal array index value in vocabulary object
+// cardinal array index value in vocabulary object
+// genitive case array index in vocabulary object
+// exception case array index in vocabulary object
+const ORDINDX = 0,
+  CARINDX = 1,
+  GENINDX = 2,
+  EXCINDX = 3;
 
 // add event listeners
 refs.language.addEventListener('change', changePlaceholder);
 refs.userInput.addEventListener('keypress', inputCharFilter);
 refs.enterBtn.addEventListener('click', composer);
 window.addEventListener('keypress', pressEnter);
-
-// ordinal array index value in vocabulary object
-// cardinal array index value in vocabulary object
-// genitive case array index in vocabulary object
-// exception case array index in vocabulary object
 
 // placeholder name depending on the language
 function changePlaceholder() {
@@ -61,8 +48,8 @@ function clearInput() {
 }
 
 // find ordinal number
-function findOrdinalEndingNumber(number, language) {
-  // ordinal for UK
+function findOrdinalNumber(number, language) {
+  // ordinal for UK and DE
   if (language === 'UK' || language === 'DE') {
     let base = 100;
     let level = 0;
@@ -86,7 +73,7 @@ function findOrdinalEndingNumber(number, language) {
   return ordinal;
 }
 
-// getting, compose and output result
+// get words, compose and output result
 function composer() {
   // remove leading zeros
   const inputNumber = parseInt(refs.userInput.value, 10);
@@ -97,18 +84,8 @@ function composer() {
   }
   // current language
   const curLang = refs.language.value;
-  const ordinalEndingNumber = findOrdinalEndingNumber(inputNumber, curLang);
+  const ordinalEndingNumber = findOrdinalNumber(inputNumber, curLang);
   const cardinalNumber = inputNumber - ordinalEndingNumber;
-
-  //DEL
-  if (LOG) {
-    console.log(
-      'inputNumber =',
-      inputNumber,
-      'ordinalEndingNumber =',
-      ordinalEndingNumber,
-    );
-  }
 
   let outputValue;
   // compose EN or DE result
@@ -156,329 +133,18 @@ function composer() {
       ...ordinalEndingWords,
     ].join('');
   }
-
-  //DEL
-  if (LOG) {
-    console.log(outputValue);
-  }
   print(inputNumber, outputValue);
   clearInput();
 }
 
-// get words for EN
-function getWordsEN(number, lang, index) {
-  if (number === 0) {
-    return '';
-  }
-  // split number into parts by 3 or less digits in array to get levels
-  const parts = [];
-  const arrToSplit = number.toString().split('');
-  let endIndex = arrToSplit.length;
-  let startIndex;
-  for (let i = 0; i < Math.ceil(arrToSplit.length / 3); i++) {
-    startIndex = endIndex - 3 < 0 ? 0 : endIndex - 3;
-    parts.push(arrToSplit.slice(startIndex, endIndex).join(''));
-    endIndex -= 3;
-  }
-  const words = [];
-  const partsQty = parts.length;
-  for (let i = 0; i < partsQty; i++) {
-    // i - is level
-    const numberFromPart = parseInt(parts[i]);
-    // skip if part === 0
-    if (numberFromPart > 0) {
-      words.push(library[lang].levels[i][index]);
-      // twoDigits - is number that consists of ones and tens
-      const twoDigits = numberFromPart % 100;
-      const ones = twoDigits % 10;
-      const tens = twoDigits - ones;
-      const hundreds = numberFromPart - twoDigits;
-      // from 1 to 19
-      if (0 < twoDigits && twoDigits < 20) {
-        words.push(library[lang][twoDigits][i ? CARINDX : index]); // if level > 0 then digits only cardinal
-      }
-      // from 20 to 99 only tens
-      else if (twoDigits > 19 && twoDigits < 100 && ones === 0) {
-        words.push(library[lang][tens][i ? CARINDX : index]); // if level > 0 then digits only cardinal
-      }
-      // from 20 to 99 with ones > 0
-      else if (twoDigits > 19 && twoDigits < 100) {
-        words.push(library[lang][ones][i ? CARINDX : index]); // if level > 0 then digits only cardinal
-        words.push(library[lang][tens][CARINDX]);
-      }
-      // hundreds
-      if (hundreds) {
-        words.push(
-          library[lang][hundreds / 100][CARINDX] +
-            ' ' +
-            library[lang][100][i ? CARINDX : index], // if level > 0 then digits only cardinal
-        );
-      }
-    }
-  }
-  // filter array to remove empty elements
-  const result = words.filter(el => el).reverse();
-  return result;
-}
+// ---------------------------------------------------------------------------------
 
-// get words for UK
-function getWordsUK(number, lang, index) {
-  if (number === 0) {
-    return '';
-  }
-  // exceptions for UK ordinal 1_000 1_000_000 1_000_000_000 1_000_000_000_000
-  if (index === GENINDX) {
-    let base = 1000;
-    let level = 1;
-    do {
-      if (number / base === 1) {
-        return [library[lang].levels[level][ORDINDX]];
-      }
-      base *= 1000;
-      level += 1;
-    } while (number / base >= 1);
-  }
-
-  // split number into parts by 3 or less digits in array to get levels
-  const parts = [];
-  const arrToSplit = number.toString().split('');
-  let endIndex = arrToSplit.length;
-  let startIndex;
-  for (let i = 0; i < Math.ceil(arrToSplit.length / 3); i++) {
-    startIndex = endIndex - 3 < 0 ? 0 : endIndex - 3;
-    parts.push(arrToSplit.slice(startIndex, endIndex).join(''));
-    endIndex -= 3;
-  }
-
-  const words = [];
-  const partsQty = parts.length;
-
-  //DEL
-  if (LOG) {
-    console.log('initial words array', words);
-    console.log('parts', parts);
-  }
-
-  for (let i = 0; i < partsQty; i++) {
-    // i - is level
-    const numberFromPart = parseInt(parts[i]);
-    // skip if part === 0
-    if (numberFromPart > 0) {
-      let curInder = index;
-      // switch current index for first word in array in genitive case
-      if (words.length === 0 && index === GENINDX) {
-        curInder = ORDINDX;
-      }
-
-      // twoDigits - is number that consists of ones and tens
-      const twoDigits = numberFromPart % 100;
-      const ones = twoDigits % 10;
-      const tens = twoDigits - ones;
-      const hundreds = numberFromPart - twoDigits;
-
-      // CARqtyINDX - level quantity index in vocabulary array only in cardinal case levels
-      let CARqtyINDX = curInder;
-      if (index === CARINDX) {
-        // if index is bigger than last element then take index of the last element in array
-        CARqtyINDX =
-          ones && ones < library[lang].levels[i].length
-            ? ones
-            : library[lang].levels[i].length - 1;
-      }
-      const elementToPush = library[lang].levels[i][CARqtyINDX];
-      // to avoid pushing empty strings to words array
-      if (elementToPush) {
-        words.push(elementToPush);
-      }
-
-      //DEL
-      if (LOG) {
-        console.log('words', words);
-        console.log('numberFromPart', numberFromPart);
-        console.log('curInder', curInder);
-        console.log(
-          'numberFromPart =',
-          numberFromPart,
-          'hundreds =',
-          hundreds,
-          'twoDigits =',
-          twoDigits,
-          'tens =',
-          tens,
-          'ones =',
-          ones,
-        );
-      }
-
-      // switch current index if array is not empty in genitive case
-      if (words.length > 0 && index === GENINDX) {
-        curInder = GENINDX;
-      }
-      const CARorGEN = index === GENINDX && number > 1000 ? GENINDX : CARINDX;
-      // from 1 to 19
-      if (0 < twoDigits && twoDigits < 20) {
-        // except for UK 1 and 2 thousand
-        if (twoDigits < 3 && i === 1 && index === CARINDX) {
-          words.push(library[lang][twoDigits][EXCINDX]);
-        } else {
-          words.push(library[lang][twoDigits][i ? CARorGEN : curInder]); // if level > 0 then digits only cardinal
-        }
-        //DEL
-        if (LOG) {
-          console.log(words);
-        }
-      }
-      // from 20 to 99 only tens
-      else if (twoDigits > 19 && twoDigits < 100 && ones === 0) {
-        words.push(library[lang][tens][i ? CARorGEN : curInder]); // if level > 0 then digits only cardinal
-        //DEL
-        if (LOG) {
-          console.log(words);
-        }
-      }
-      // from 20 to 99 with ones > 0
-      else if (twoDigits > 19 && twoDigits < 100) {
-        words.push(library[lang][ones][i ? CARorGEN : curInder]); // if level > 0 then digits only cardinal
-        words.push(library[lang][tens][CARorGEN]);
-        //DEL
-        if (LOG) {
-          console.log(words);
-        }
-      }
-      // hundreds
-      if (hundreds) {
-        words.push(library[lang][hundreds][i ? CARorGEN : curInder]);
-        //DEL
-        if (LOG) {
-          console.log(words);
-        }
-      }
-    }
-  }
-  // filter array to remove empty elements
-  const result = words.filter(el => el).reverse();
-  //DEL
-  if (LOG) {
-    console.log(result);
-  }
-  return result;
-}
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// get words for DE
-function getWordsDE(number, lang, index) {
-  if (number === 0) {
-    return '';
-  }
-  // split number into parts by 3 or less digits in array to get levels
-  const parts = [];
-  const arrToSplit = number.toString().split('');
-  let endIndex = arrToSplit.length;
-  let startIndex;
-  for (let i = 0; i < Math.ceil(arrToSplit.length / 3); i++) {
-    startIndex = endIndex - 3 < 0 ? 0 : endIndex - 3;
-    parts.push(arrToSplit.slice(startIndex, endIndex).join(''));
-    endIndex -= 3;
-  }
-  const words = [];
-  const partsQty = parts.length;
-
-  //DEL
-  if (LOG) {
-    console.log('parts', parts);
-  }
-
-  for (let i = 0; i < partsQty; i++) {
-    // i - is level
-    const numberFromPart = parseInt(parts[i]);
-    // skip if part === 0
-    if (numberFromPart > 0) {
-      // twoDigits - is number that consists of ones and tens
-      const twoDigits = numberFromPart % 100;
-      const ones = twoDigits % 10;
-      const tens = twoDigits - ones;
-      const hundreds = numberFromPart - twoDigits;
-
-      // in ordinal case index === ORDINDX
-      // in cardinal case index === CARINDX (singular) or CARINDX + 1 (plural) only for level > 1
-      let LEVELINDX = index;
-      let space = '';
-      if (index === CARINDX && i > 1 && twoDigits !== 1) {
-        LEVELINDX = CARINDX + 1;
-      }
-      // space around word level > 1 in cardinal case
-      if (index === CARINDX && i > 1) {
-        space = ' ';
-      }
-      words.push(space + library[lang].levels[i][LEVELINDX] + space);
-
-      //DEL
-      if (LOG) {
-        console.log('words', words);
-        console.log(
-          'numberFromPart =',
-          numberFromPart,
-          'hundreds =',
-          hundreds,
-          'twoDigits =',
-          twoDigits,
-          'tens =',
-          tens,
-          'ones =',
-          ones,
-        );
-      }
-
-      // from 1 to 19
-      if (0 < twoDigits && twoDigits < 20) {
-        // except for DE 'ein' to 'eine' for levels > 1
-        if (numberFromPart === 1 && i > 1 && index === CARINDX) {
-          words.push(library[lang][twoDigits][EXCINDX]);
-        } else {
-          words.push(library[lang][twoDigits][i ? CARINDX : index]); // if level > 0 then digits only cardinal
-        }
-        //DEL
-        if (LOG) {
-          console.log(words);
-        }
-      }
-      // from 20 to 99 only tens
-      else if (twoDigits > 19 && twoDigits < 100 && ones === 0) {
-        words.push(library[lang][tens][i ? CARINDX : index]); // if level > 0 then digits only cardinal
-        //DEL
-        if (LOG) {
-          console.log(words);
-        }
-      }
-      // from 20 to 99 with ones > 0
-      else if (twoDigits > 19 && twoDigits < 100) {
-        words.push(library[lang][tens][i ? CARINDX : index]);
-        words.push('und');
-        words.push(library[lang][ones][CARINDX]); // if level > 0 then digits only cardinal
-        //DEL
-        if (LOG) {
-          console.log(words);
-        }
-      }
-      // hundreds
-      if (hundreds) {
-        words.push(
-          library[lang][hundreds / 100][CARINDX] +
-            library[lang][100][i ? CARINDX : index], // if level > 0 then digits only cardinal
-        );
-        //DEL
-        if (LOG) {
-          console.log(words);
-        }
-      }
-    }
-  }
-  // filter array to remove empty elements
-  const result = words.filter(el => el).reverse();
-  return result;
-}
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+let testEN = 0;
+testEN = 1;
+let testUK = 0;
+testUK = 1;
+let testDE = 0;
+testDE = 1;
 
 // TEST
 function test(stringToMatch, numberToCheck, curLang) {
