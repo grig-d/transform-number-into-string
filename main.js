@@ -276,16 +276,16 @@ function getWordsUK(number, lang, index) {
       const tens = twoDigits - ones;
       const hundreds = numberFromPart - twoDigits;
 
-      // levelQtyINDX - level quantity index in vocabulary array only in cardinal case levels
-      let levelQtyINDX = curInder; //////////////////////--------------<<<<<<<<<<<< HERE
+      // CARqtyINDX - level quantity index in vocabulary array only in cardinal case levels
+      let CARqtyINDX = curInder;
       if (index === CARINDX) {
         // if index is bigger than last element then take index of the last element in array
-        levelQtyINDX =
+        CARqtyINDX =
           ones && ones < library[lang].levels[i].length
             ? ones
             : library[lang].levels[i].length - 1;
       }
-      const elementToPush = library[lang].levels[i][levelQtyINDX];
+      const elementToPush = library[lang].levels[i][CARqtyINDX];
       // to avoid pushing empty strings to words array
       if (elementToPush) {
         words.push(elementToPush);
@@ -393,12 +393,24 @@ function getWordsDE(number, lang, index) {
     const numberFromPart = parseInt(parts[i]);
     // skip if part === 0
     if (numberFromPart > 0) {
-      words.push(library[lang].levels[i][index]); //------------------>>>>>>>>>>>>>>>>>>>>>>>>>>>>> HERE
       // twoDigits - is number that consists of ones and tens
       const twoDigits = numberFromPart % 100;
       const ones = twoDigits % 10;
       const tens = twoDigits - ones;
       const hundreds = numberFromPart - twoDigits;
+
+      // in ordinal case index === ORDINDX
+      // in cardinal case index === CARINDX (singular) or CARINDX + 1 (plural) only for level > 1
+      let LEVELINDX = index;
+      let space = '';
+      if (index === CARINDX && i > 1 && twoDigits !== 1) {
+        LEVELINDX = CARINDX + 1;
+      }
+      // space around word level > 1 in cardinal case
+      if (index === CARINDX && i > 1) {
+        space = ' ';
+      }
+      words.push(space + library[lang].levels[i][LEVELINDX] + space);
 
       //DEL
       if (LOG) {
@@ -420,7 +432,7 @@ function getWordsDE(number, lang, index) {
       // from 1 to 19
       if (0 < twoDigits && twoDigits < 20) {
         // except for DE 'ein' to 'eine' for levels > 1
-        if (twoDigits === 1 && i > 1 && index === CARINDX) {
+        if (numberFromPart === 1 && i > 1 && index === CARINDX) {
           words.push(library[lang][twoDigits][EXCINDX]);
         } else {
           words.push(library[lang][twoDigits][i ? CARINDX : index]); // if level > 0 then digits only cardinal
@@ -623,12 +635,12 @@ if (testDE) {
   test('einmillionste', 1_000_000, 'DE');
   test('dreimillionste', 3_000_000, 'DE');
   test('drei Millionen erste', 3_000_001, 'DE');
-  test('dreimillionzehnte', 3_000_010, 'DE');
+  test('drei Millionen zehnte', 3_000_010, 'DE');
   test('drei Millionen zweitausendste', 3_002_000, 'DE');
   test('sieben Millionen zweiunddreißigtausendste', 7_032_000, 'DE');
   test('einhundertmillionste', 100_000_000, 'DE');
   test('zehn Millionen viertausendste', 10_004_000, 'DE');
-  test('eine Milliarde einhundertsiebzigtausendstel', 1_000_170_000, 'DE');
+  test('eine Milliarde einhundertsiebzigtausendste', 1_000_170_000, 'DE');
   test(
     'fünfzehn Milliarden neunhundertzwölf Millionen fünfzigtausendste',
     15_912_050_000,

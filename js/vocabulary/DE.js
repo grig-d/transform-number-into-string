@@ -38,12 +38,3 @@ const DE = {
 };
 
 export default DE;
-
-//  plural level index is cardinal index + 1 (CARIND + 1) for level > 1
-/*
-eine Million
-zwei Millionen
-eine Milliarde
-eine Billion
-zwei Billionen
-*/
