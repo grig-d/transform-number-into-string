@@ -13,10 +13,10 @@ let LOG = 0;
 
 //DEL
 let testEN = 0;
-// testEN = 1;
+testEN = 1;
 //DEL
 let testUK = 0;
-// testUK = 1;
+testUK = 1;
 //DEL
 let testDE = 0;
 testDE = 1;
