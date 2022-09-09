@@ -1,1 +1,1 @@
-# Transform Your number into ordinal words
+# Transform Your integer number into ordinal string
